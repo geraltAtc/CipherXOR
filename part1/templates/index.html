@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Однократное гаммирование</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Режим однократного гаммирования</h1>
+
+      {% if errors %}
+      <div class="alert">
+        {% for message in errors %}
+        <div>{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <section class="card">
+        <h2>1. Считаем шифртекст по открытому тексту и ключу</h2>
+
+        <div class="helper-block">
+          <h3>Генерация случайного ключа под текст</h3>
+          <form method="POST">
+            <input type="hidden" name="action" value="generate_key" />
+            <label for="gen_plaintext">Введите текст (UTF-8):</label>
+            <textarea id="gen_plaintext" name="gen_plaintext" rows="2">
+{{ form_values.gen_plaintext }}</textarea
+            >
+            <button type="submit">Сгенерировать случайный hex-ключ</button>
+          </form>
+
+          {% if generated_key_hex %}
+          <div class="result">
+            <strong>Сгенерированный ключ:</strong>
+            <pre>{{ generated_key_hex }}</pre>
+            <div class="hint">
+              Ключ уже подставлен в поле ниже — можно сразу шифровать исходное
+              сообщение.
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <form method="POST">
+          <input type="hidden" name="action" value="encrypt" />
+          <label for="enc_plaintext">Открытый текст (UTF-8):</label>
+          <textarea id="enc_plaintext" name="enc_plaintext" rows="3" required>
+{{ form_values.enc_plaintext }}</textarea
+          >
+
+          <label for="enc_key_hex">Ключ (hex, без префиксов):</label>
+          <textarea id="enc_key_hex" name="enc_key_hex" rows="2" required>
+{{ form_values.enc_key_hex }}</textarea
+          >
+
+          <button type="submit">Получить шифртекст</button>
+        </form>
+
+        {% if encryption_result %}
+        <div class="result">
+          <div><strong>Длина:</strong> {{ encryption_result.length }} байт</div>
+          <div>
+            <strong>Шифртекст:</strong>
+            <pre>{{ encryption_result.cipher_hex }}</pre>
+          </div>
+          <div>
+            <strong>Ключ:</strong>
+            <pre>{{ encryption_result.key_hex }}</pre>
+          </div>
+          <div>
+            <strong>Проверка (декод):</strong>
+            {{ encryption_result.decoded }}
+          </div>
+        </div>
+        {% endif %}
+      </section>
+
+      <section class="card">
+        <h2>2. Находим ключ по открытому тексту и шифртексту</h2>
+        <form method="POST">
+          <input type="hidden" name="action" value="derive_key" />
+          <label for="key_plaintext">Открытый текст (UTF-8):</label>
+          <textarea id="key_plaintext" name="key_plaintext" rows="3" required>
+{{ form_values.key_plaintext }}</textarea
+          >
+
+          <label for="key_cipher_hex">Шифртекст (hex):</label>
+          <textarea id="key_cipher_hex" name="key_cipher_hex" rows="2" required>
+{{ form_values.key_cipher_hex }}</textarea
+          >
+
+          <button type="submit">Вычислить ключ</button>
+        </form>
+
+        {% if key_result %}
+        <div class="result">
+          <div>
+            <strong>Ключ:</strong>
+            <pre>{{ key_result.key_hex }}</pre>
+          </div>
+          <div>
+            <strong>Проверка (декод):</strong>
+            {{ key_result.decoded }}
+          </div>
+        </div>
+        {% endif %}
+      </section>
+
+      <section class="card">
+        <h2>3. Дешифруем по ключу и шифртексту</h2>
+        <form method="POST">
+          <input type="hidden" name="action" value="decrypt" />
+          <label for="decipher_key_hex">Ключ (hex):</label>
+          <textarea
+            id="decipher_key_hex"
+            name="decipher_key_hex"
+            rows="2"
+            required
+          >
+{{ form_values.decipher_key_hex }}</textarea
+          >
+
+          <label for="decipher_cipher_hex">Шифртекст (hex):</label>
+          <textarea
+            id="decipher_cipher_hex"
+            name="decipher_cipher_hex"
+            rows="2"
+            required
+          >
+{{ form_values.decipher_cipher_hex }}</textarea
+          >
+
+          <button type="submit">Расшифровать</button>
+        </form>
+
+        {% if decipher_result %}
+        <div class="result">
+          <strong>Открытый текст:</strong>
+          <pre>{{ decipher_result.plaintext }}</pre>
+        </div>
+        {% endif %}
+      </section>
+    </div>
+  </body>
+</html>

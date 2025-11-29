@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>XOR Шифратор с группой ключей</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h2>XOR Шифратор с группой ключей</h2>
+      <form method="POST">
+        <label>Введите сообщение:</label>
+        <textarea name="message" rows="3" required></textarea>
+
+        <!-- <label>Индекс ключа (0–9, оставьте пустым для случайного):</label>
+        <input type="text" name="key_index" /> -->
+
+        <button type="submit">Зашифровать</button>
+      </form>
+
+      {% if result %}
+      <h3>Результат</h3>
+      <div class="block">
+        <strong>Сообщение:</strong><br />{{ result.message }}
+      </div>
+      <div class="block">
+        <strong>Шифртекст:</strong><br />{{ result.cipher }}
+      </div>
+      <div class="block">
+        <strong>Использованный ключ:</strong><br />{{ result.key }}
+      </div>
+      <div class="block">
+        <strong>Расшифровка:</strong><br />{{ result.decoded }}
+      </div>
+      <div class="block">
+        <strong>Размер группы ключей:</strong> {{ result.group_size }}
+      </div>
+
+      <a href="{{ url_for('download_group', group_id=result.group_id) }}">
+        <button>Скачать группу ключей JSON</button>
+      </a>
+      {% endif %}
+    </div>
+  </body>
+</html>
